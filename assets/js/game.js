@@ -3,29 +3,41 @@ const contentCanvas = document.getElementById("content-canvas");
 const canvas = document.createElement("CANVAS");
 contentCanvas.appendChild(canvas)
 const ctx = canvas.getContext('2d');
+const buttonElm = document.getElementById("init-button")
+const scoreElm = document.getElementById("score")
 
-const INTERVAL_DURATION = 20
+const INTERVAL_DURATION = 2
 const ARROW_UP = "ArrowUp"
 const ARROW_DOWN = "ArrowDown"
 const AIRPLANE_MOVE_SIZE = 20
 const AIRPLANE_HEIGHT = 20
 const AIRPLANE_WIDTH = 20
-const COMET_HEIGHT = 20
-const COMET_WIDTH = 20
+const COMET_HEIGHT = 100
+const COMET_WIDTH = 100
+const COMET_MOVE_SIZE = 10
+const GAME_OVER_X = contentCanvas.offsetWidth/2
+const GAME_OVER_Y = contentCanvas.offsetHeight/2
 
-//definir o ínicio do desenho
-let [cometaX, cometaY] = iniciandoCometa();
-let [airplaneX, airplaneY] = iniciandoAirplane();
+let cometaX, cometaY, airplaneX, airplaneY, frame = 0, interval, score = 0
 
-resizeCanvas();
+init()
 
-let frame = 0
-const interval = setInterval(() => {
-    console.log(canvas.offsetHeight)
-    console.log(canvas.offsetWidth)
+function init() {
+    score = 0
+    buttonElm.disabled = true;
 
-    requestAnimationFrame(runInterval);
-}, INTERVAL_DURATION);
+    //definir o ínicio do desenho
+    [cometaX, cometaY] = iniciandoCometa();
+    [airplaneX, airplaneY] = iniciandoAirplane();
+
+    resizeCanvas();
+
+    interval = setInterval(() => {
+        requestAnimationFrame(runInterval);
+    }, INTERVAL_DURATION);
+}
+
+buttonElm.addEventListener("click", init)
 
 window.addEventListener('resize', resizeCanvas, false);
 
@@ -49,6 +61,28 @@ function runInterval() {
     ctx.clearRect(0, 0, contentCanvas.offsetWidth, contentCanvas.offsetHeight);
     gameloopCometa()
     gameloopAirplane()
+    gameloopColision()
+    updateScore()
+}
+
+function gameloopColision() {
+    const cometaX2 = cometaX + COMET_WIDTH
+    const cometaY2 = cometaY + COMET_HEIGHT
+    const airplaneY2 = airplaneY + AIRPLANE_HEIGHT
+    const airplaneX2 = airplaneX + AIRPLANE_WIDTH
+    
+    if (( cometaX2 > airplaneX && cometaX < airplaneX2) && (cometaY2 > airplaneY && cometaY < airplaneY2)) {
+        ctx.font = "30px Arial";
+        ctx.fillText("Game Over", GAME_OVER_X - 90, GAME_OVER_Y);
+
+        clearInterval(interval)
+        interval = null
+        buttonElm.disabled = false
+    }
+}
+
+function updateScore() {
+    scoreElm.textContent = `${score}`;
 }
 
 function gameloopAirplane() {
@@ -56,19 +90,19 @@ function gameloopAirplane() {
 }
 
 function gameloopCometa() {
-    if (frame >= 50) {
+    if (frame >= 5) {
         frame = 0
 
-        if(cometaX >= canvas.offsetWidth) {
+        if(cometaX >= (canvas.offsetWidth - (COMET_WIDTH / 2))) {
             [cometaX, cometaY] = iniciandoCometa();
-        } else cometaX += COMET_WIDTH;
+            score++
+        } else cometaX += COMET_MOVE_SIZE;
     } else frame++
-
     desenharCometa(cometaX, cometaY);
 }
 
 function iniciandoCometa() {
-    return [-COMET_WIDTH/2, Math.floor(Math.random() * contentCanvas.offsetHeight)]
+    return [-COMET_WIDTH/2, Math.floor(Math.random() * (contentCanvas.offsetHeight - COMET_HEIGHT))]
 }
 
 function iniciandoAirplane() {
@@ -87,7 +121,6 @@ function desenharAirplane(pX, pY) {
 }
 
 function resizeCanvas() {
-    console.log("resizeCanvas")
     canvas.setAttribute("width", `${contentCanvas.offsetWidth}`);
     canvas.setAttribute("height", `${contentCanvas.offsetHeight}`);
     canvas.style.height = `${contentCanvas.offsetHeight}px`
