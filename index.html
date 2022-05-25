@@ -1,84 +1,16 @@
 <!DOCTYPE html>
 <html>
-	<head>
+<head>
 	<meta charset="utf-8"/>
 	<title> Game Loop usando requestAnimationFrame</title>
-	</head>
+	<link rel="stylesheet" href="assets/css/style.css">
+</head>
 <body>
-	<canvas id="minha-tela" width="800" height="400" style="border: #F00 solid 1px;"> </canvas>  
-	<script>  
-		var canvas = document.getElementById('minha-tela'); 
-		var ctx = canvas.getContext('2d');
-
-		const ARROW_UP = "ArrowUp"
-		const ARROW_DOWN = "ArrowDown"
-
-		//definir o ínicio do desenho
-		let [cometaX, cometaY] = iniciandoCometa();
-		let [airplaneX, airplaneY] = iniciandoAirplane();
-
-		let frame = 0
-		const interval = setInterval(() => {
-			if (frame === 3) {
-				frame = 0
-				//a função gameloop é chamada aqui
-				console.log("executando requestAnimationFrame")
-				requestAnimationFrame(gameloopCometa);
-			} else frame++
-
-			requestAnimationFrame(gameloopAirplane);
-		}, 60);
-
-		window.addEventListener("keydown", function(event) {
-			switch (event.code) {
-				case ARROW_UP:
-					airplaneY-=10
-					break;
-				case ARROW_DOWN:
-					airplaneY+=10
-					break;
-				default:
-					break;
-			}
-		}, true);
-		
-
-		function gameloopAirplane() {
-			desenharAirplane(airplaneX, airplaneY)
-		}
-
-		function gameloopCometa() {
-			if(cometaX >= 800) {
-				[cometaX, cometaY] = iniciandoCometa();
-			} else cometaX += 20;
-
-			desenharCometa(cometaX, cometaY); //enquanto x for menor que 700 ocorre o desenho
-		}
-
-		function iniciandoCometa() {
-			return [-10, Math.floor(Math.random() * 370)]
-		}
-
-		function iniciandoAirplane() {
-			return [780, 200]
-		}
-
-		function desenharCometa(pX, pY) {
-			ctx.clearRect(0, 0, 800, 400); //antes de fazer o desenho é preciso limpar o canvas
-			ctx.fillStyle = '#00F';
-			ctx.fillRect(pX, pY, 20, 20);
-		}
-
-		function desenharAirplane(pX, pY) {
-			ctx.fillStyle = '#0FF';
-			ctx.fillRect(pX, pY, 20, 20);
-		}
+	<div id="content-canvas" class="content">
+<!--		<canvas id="minha-tela" width="800" height="400"> </canvas>-->
+	</div>
 
 
-
-		
-		
-		
-	</script>  
+	<script src="assets/js/game.js"></script>
 </body>
 </html>
